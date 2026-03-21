@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Web Servers Work</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page-wrapper">
+
+    <!-- header -->
+    <header>
+        <h1>Web Servers</h1>
+        <p>IT 3203 Web Development Project, Luke Miller</p>
+    </header>
+
+    <!-- nav menu -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="how-servers-work.html" class="active">How Servers Work</a></li>
+            <li><a href="history.html">History &amp; Evolution</a></li>
+            <li><a href="key-concepts.html">Key Concepts</a></li>
+            <li><a href="references.html">References</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div id="page-intro">
+            <h2 class="section-title">How Web Servers Work</h2>
+            <p>
+                Web servers are basically what makes the Internet run. They take requests from browsers,
+                figure out what was asked for, and send it back. This page covers the request and response
+                process, what kind of content servers deal with, and the difference between static and dynamic servers.
+            </p>
+        </div>
+
+        <h2 class="section-title">The HTTP Request and Response Process</h2>
+        <p>
+            When someone types a URL into a browser, the browser sends an HTTP request to the web server
+            that hosts that address. The server finds the resource and sends it back. This whole exchange
+            is called the <strong>request-response cycle</strong>.
+        </p>
+        <p>
+            What gets sent back could be an HTML page, images, CSS files, JavaScript, or other files.
+            If the server cannot find what was requested, it sends back an error like the well known
+            <strong>404 Not Found</strong>.
+        </p>
+
+        <h3 class="sub-title">Step-by-Step Process</h3>
+        <ol class="content-list">
+            <li>User types a URL into the browser.</li>
+            <li>The browser sends an HTTP request to the right web server.</li>
+            <li>The web server gets the request and starts processing it.</li>
+            <li>The server finds the requested resource, whether that is an HTML file, image, or something else.</li>
+            <li>The server sends the resource back to the browser over HTTP.</li>
+            <li>The browser displays the content to the user.</li>
+        </ol>
+
+        <h2 class="section-title">What Web Servers Store</h2>
+        <p>
+            Web servers do more than just send HTML pages. They also store and organize everything else
+            a website needs, like images, video files, fonts, stylesheets, and JavaScript files.
+            Since servers are meant to stay running all the time, people can access a website any time of day
+            from wherever they are.
+        </p>
+
+        <!-- comparison table for static vs dynamic -->
+        <h2 class="section-title">Static vs. Dynamic Web Servers</h2>
+        <p>
+            One of the most common ways to categorize web servers is by whether they serve static or
+            dynamic content. Knowing the difference helps a lot when thinking about how different
+            kinds of websites are built.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Static Web Server</th>
+                    <th>Dynamic Web Server</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Content Type</td>
+                    <td>Fixed HTML, images, CSS, JS files</td>
+                    <td>Generated per request for each user</td>
+                </tr>
+                <tr>
+                    <td>Processing</td>
+                    <td>No server-side processing needed</td>
+                    <td>Uses an application server and database</td>
+                </tr>
+                <tr>
+                    <td>Complexity</td>
+                    <td>Simple to set up and maintain</td>
+                    <td>More complex, needs more hardware</td>
+                </tr>
+                <tr>
+                    <td>Speed</td>
+                    <td>Generally faster</td>
+                    <td>A bit slower because of the extra processing</td>
+                </tr>
+                <tr>
+                    <td>Use Cases</td>
+                    <td>Portfolios, documentation, landing pages</td>
+                    <td>Social media, e-commerce, CMS platforms</td>
+                </tr>
+                <tr>
+                    <td>User Accounts</td>
+                    <td>Not supported</td>
+                    <td>Fully supported</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="section-title">How Dynamic Content Works</h2>
+        <p>
+            When someone requests dynamic content, the web server passes the request along to an
+            <strong>application server</strong>, which handles the logic and usually pulls data from a
+            <strong>database</strong>. The application server builds the response and hands it back to
+            the web server, which then sends it to the browser.
+        </p>
+        <p>
+            This is how most modern web apps work, including social media, online shopping, and anything
+            that requires a login. A lot of sites today mix both static and dynamic elements to
+            get the best of both in terms of speed and functionality.
+        </p>
+
+        <h3 class="sub-title">Examples of Sites That Need Dynamic Servers</h3>
+        <ul class="content-list">
+            <li>Social media platforms like Facebook, Instagram, and Twitter</li>
+            <li>Online shopping sites like Amazon and eBay</li>
+            <li>Content Management Systems like WordPress and Drupal</li>
+            <li>Online banking portals</li>
+            <li>Email platforms like Gmail and Outlook</li>
+        </ul>
+
+    </main>
+
+    <footer>
+        <p>This is a class project for <a href="https://ksuweb.github.io/IT3203/" target="_blank">IT 3203 Web Development</a> at Kennesaw State University.</p>
+        <p style="margin-top: 6px;">&copy; 2026 Luke Miller</p>
+    </footer>
+
+</div>
+</body>
+</html>
