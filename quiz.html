@@ -612,266 +612,288 @@
 
 </div>
 
-<!-- ================================================================
-     QUIZ JAVASCRIPT
-     Handles grading, scoring, results display, and reset logic.
-     Luke Miller - IT 3203 Web Development
-     ================================================================ -->
+<!-- quiz javascript - Luke Miller -->
 <script>
 
-    // ---------------------------------------------------------------
-    // ANSWER KEY
-    // Q1: fill-in-the-blank — accept "http" or "https" (case-insensitive)
-    // Q2-Q6: single correct radio choice (a, b, c, or d)
-    // Q7: multi-select — user must pick exactly a, c, and d
-    // ---------------------------------------------------------------
-    const ANSWER_KEY = {
-        q1: ["http", "https"],          // accepted fill-blank answers (lowercase)
-        q2: "b",                         // sends resource back over HTTP
-        q3: "c",                         // 404 Not Found
-        q4: "a",                         // Tim Berners-Lee at CERN
-        q5: "b",                         // built for high concurrent connections
-        q6: "d",                         // sends files as-is, no processing
-        q7: ["a", "c", "d"]             // Apache, Nginx, IIS (not MySQL)
-    };
+    // correct answers for each question
+    var correctQ1 = "http"; // also accept https
+    var correctQ2 = "b";
+    var correctQ3 = "c";
+    var correctQ4 = "a";
+    var correctQ5 = "b";
+    var correctQ6 = "d";
+    // q7 is a checkbox question, correct ones are a, c, and d
 
-    // Short labels for each question used in the results breakdown
-    const QUESTION_LABELS = {
-        q1: 'Fill in the Blank — "The protocol browsers and servers use to communicate is ___."',
-        q2: "Multiple Choice — What does the server do after locating a resource?",
-        q3: "Multiple Choice — Which status code means the resource was not found?",
-        q4: "Multiple Choice — Who created the first web server and where?",
-        q5: "Multiple Choice — Why was Nginx developed?",
-        q6: "Multiple Choice — How does a static web server handle a request?",
-        q7: "Select All That Apply — Which of these are web server software?"
-    };
-
-    // Human-readable correct answers shown in the breakdown
-    const CORRECT_ANSWER_TEXT = {
-        q1: "HTTP (or HTTPS)",
-        q2: "It sends the resource back to the browser over HTTP",
-        q3: "404 Not Found",
-        q4: "Tim Berners-Lee at CERN in Switzerland",
-        q5: "It was built to handle thousands of concurrent connections more efficiently",
-        q6: "It sends files exactly as they are stored, with no extra processing",
-        q7: "Apache HTTP Server, Nginx, and IIS"
-    };
-
-    // ---------------------------------------------------------------
-    // gradeQuiz()
-    // Called when the user clicks Submit. Collects answers, scores
-    // each question, updates the UI with results, and scrolls up.
-    // ---------------------------------------------------------------
+    // this runs when the user clicks submit
     function gradeQuiz() {
-        let totalScore = 0;
-        const totalQuestions = 7;
-        const passingPercent = 70;
-        const results = {};
+        var score = 0;
 
-        // --- Q1: Fill in the blank ---
-        const q1Answer = document.getElementById("q1").value.trim().toLowerCase();
-        results.q1 = {
-            correct: ANSWER_KEY.q1.includes(q1Answer),
-            userAnswer: q1Answer === "" ? "(no answer)" : document.getElementById("q1").value.trim()
-        };
+        // object to store whether each question was right or wrong
+        var results = {};
 
-        // --- Q2 through Q6: Single-choice radio questions ---
-        ["q2", "q3", "q4", "q5", "q6"].forEach(function(qName) {
-            const selected = document.querySelector('input[name="' + qName + '"]:checked');
-            const userVal = selected ? selected.value : null;
-            results[qName] = {
-                correct: userVal === ANSWER_KEY[qName],
-                userAnswer: selected ? selected.nextElementSibling.textContent : "(no answer)"
-            };
-        });
+        // --- Q1: fill in the blank ---
+        // grab what they typed, make it lowercase so HTTP and http both work
+        var q1input = document.getElementById("q1").value.trim().toLowerCase();
+        if (q1input === "http" || q1input === "https") {
+            results.q1 = true;
+            score++;
+        } else {
+            results.q1 = false;
+        }
 
-        // --- Q7: Multi-select checkboxes ---
-        const q7Checked = Array.from(document.querySelectorAll('input[name="q7"]:checked'))
-                               .map(function(cb) { return cb.value; })
-                               .sort();
-        const q7Correct = [...ANSWER_KEY.q7].sort();
-        // must match exactly — same items, same count
-        const q7IsCorrect = JSON.stringify(q7Checked) === JSON.stringify(q7Correct);
-        results.q7 = {
-            correct: q7IsCorrect,
-            userAnswer: q7Checked.length === 0
-                ? "(no answer)"
-                : q7Checked.map(function(v) {
-                    return document.querySelector('input[value="' + v + '"][name="q7"]')
-                                   .nextElementSibling.textContent;
-                  }).join(", ")
-        };
+        // --- Q2: multiple choice ---
+        var q2selected = document.querySelector('input[name="q2"]:checked');
+        if (q2selected != null && q2selected.value === correctQ2) {
+            results.q2 = true;
+            score++;
+        } else {
+            results.q2 = false;
+        }
 
-        // --- Calculate total score ---
-        ["q1","q2","q3","q4","q5","q6","q7"].forEach(function(q) {
-            if (results[q].correct) totalScore++;
-        });
+        // --- Q3: multiple choice ---
+        var q3selected = document.querySelector('input[name="q3"]:checked');
+        if (q3selected != null && q3selected.value === correctQ3) {
+            results.q3 = true;
+            score++;
+        } else {
+            results.q3 = false;
+        }
 
-        const percentScore = Math.round((totalScore / totalQuestions) * 100);
-        const passed = percentScore >= passingPercent;
+        // --- Q4: multiple choice ---
+        var q4selected = document.querySelector('input[name="q4"]:checked');
+        if (q4selected != null && q4selected.value === correctQ4) {
+            results.q4 = true;
+            score++;
+        } else {
+            results.q4 = false;
+        }
 
-        // --- Show results section ---
-        showResults(results, totalScore, totalQuestions, percentScore, passed);
+        // --- Q5: multiple choice ---
+        var q5selected = document.querySelector('input[name="q5"]:checked');
+        if (q5selected != null && q5selected.value === correctQ5) {
+            results.q5 = true;
+            score++;
+        } else {
+            results.q5 = false;
+        }
 
-        // --- Highlight option rows on each question card ---
-        highlightOptions(results);
+        // --- Q6: multiple choice ---
+        var q6selected = document.querySelector('input[name="q6"]:checked');
+        if (q6selected != null && q6selected.value === correctQ6) {
+            results.q6 = true;
+            score++;
+        } else {
+            results.q6 = false;
+        }
 
-        // --- Lock the form so answers can't change after grading ---
-        lockForm();
+        // --- Q7: checkboxes (select all that apply) ---
+        // correct answers are a, c, and d. b (MySQL) is wrong
+        var q7a = document.getElementById("q7a").checked;
+        var q7b = document.getElementById("q7b").checked;
+        var q7c = document.getElementById("q7c").checked;
+        var q7d = document.getElementById("q7d").checked;
 
-        // --- Show reset button, hide submit button ---
+        // all three correct boxes must be checked and the wrong one must not be
+        if (q7a === true && q7b === false && q7c === true && q7d === true) {
+            results.q7 = true;
+            score++;
+        } else {
+            results.q7 = false;
+        }
+
+        // figure out percent and if they passed
+        var percent = Math.round((score / 7) * 100);
+        var passed = percent >= 70;
+
+        // show the results on the page
+        showResults(results, score, percent, passed);
+        colorOptions(results, q2selected, q3selected, q4selected, q5selected, q6selected, q7a, q7b, q7c, q7d);
+
+        // disable inputs so they cant change answers after submitting
+        var allInputs = document.querySelectorAll("#quiz-form input");
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = true;
+        }
+
+        // hide submit, show reset
         document.getElementById("btn-submit").style.display = "none";
         document.getElementById("btn-reset").style.display = "inline-block";
 
-        // --- Scroll to top of results ---
+        // scroll up so they see the results
         document.getElementById("quiz-results").scrollIntoView({ behavior: "smooth" });
     }
 
-    // ---------------------------------------------------------------
-    // showResults()
-    // Builds and injects the score banner and per-question breakdown.
-    // ---------------------------------------------------------------
-    function showResults(results, score, total, percent, passed) {
-        const resultsDiv = document.getElementById("quiz-results");
+    // builds the results section and puts it on the page
+    function showResults(results, score, percent, passed) {
+        var resultsDiv = document.getElementById("quiz-results");
         resultsDiv.style.display = "block";
 
-        // Build score banner HTML
-        const bannerClass = passed ? "pass" : "fail";
-        const bannerLabel = passed ? "✓ PASS" : "✗ FAIL";
-        const bannerHTML = `
-            <div class="score-banner ${bannerClass}">
-                <span class="result-label">${bannerLabel}</span>
-                <span class="score-number">${score} / ${total} correct</span>
-                <span class="score-pct">${percent}%</span>
-            </div>
-        `;
+        // score banner - green for pass, red for fail
+        var bannerClass = passed ? "pass" : "fail";
+        var bannerText = passed ? "&#10003; PASS" : "&#10007; FAIL";
 
-        // Insert banner before the breakdown section
-        const breakdown = resultsDiv.querySelector(".result-breakdown");
-        breakdown.insertAdjacentHTML("beforebegin", bannerHTML);
+        var banner = "<div class='score-banner " + bannerClass + "'>";
+        banner += "<span class='result-label'>" + bannerText + "</span>";
+        banner += "<span class='score-number'>" + score + " / 7 correct</span>";
+        banner += "<span class='score-pct'>" + percent + "%</span>";
+        banner += "</div>";
 
-        // Build per-question result items
-        const container = document.getElementById("result-items-container");
+        var breakdown = resultsDiv.querySelector(".result-breakdown");
+        breakdown.insertAdjacentHTML("beforebegin", banner);
+
+        // build each question result row
+        var container = document.getElementById("result-items-container");
         container.innerHTML = "";
 
-        ["q1","q2","q3","q4","q5","q6","q7"].forEach(function(q, idx) {
-            const r = results[q];
-            const itemClass = r.correct ? "correct" : "incorrect";
-            const statusText = r.correct ? "Correct" : "Incorrect";
+        // store question info for the breakdown display
+        var qLabels = [
+            "Fill in the Blank — The protocol browsers and servers use to communicate",
+            "Multiple Choice — What does the server do after finding a resource?",
+            "Multiple Choice — Which status code means the resource was not found?",
+            "Multiple Choice — Who created the first web server and where?",
+            "Multiple Choice — Why was Nginx developed?",
+            "Multiple Choice — How does a static web server handle a request?",
+            "Select All That Apply — Which of these are web server software?"
+        ];
 
-            // Only show correct answer row if the user got it wrong
-            const correctAnswerHTML = r.correct
-                ? ""
-                : `<p class="result-correct-answer">Correct answer: ${CORRECT_ANSWER_TEXT[q]}</p>`;
+        var correctAnswers = [
+            "HTTP (or HTTPS)",
+            "It sends the resource back to the browser over HTTP",
+            "404 Not Found",
+            "Tim Berners-Lee at CERN in Switzerland",
+            "Built to handle thousands of concurrent connections more efficiently",
+            "Sends files exactly as stored, no extra processing",
+            "Apache HTTP Server, Nginx, and IIS"
+        ];
 
-            container.innerHTML += `
-                <div class="result-item ${itemClass}">
-                    <p class="result-q-text">Q${idx + 1}: ${QUESTION_LABELS[q]}</p>
-                    <p class="result-status">${statusText}</p>
-                    <p class="result-your-answer">Your answer: ${r.userAnswer}</p>
-                    ${correctAnswerHTML}
-                </div>
-            `;
-        });
-    }
+        var qKeys = ["q1", "q2", "q3", "q4", "q5", "q6", "q7"];
 
-    // ---------------------------------------------------------------
-    // highlightOptions()
-    // Adds color classes to each option row after grading so users
-    // can see which choices were right or wrong at a glance.
-    // ---------------------------------------------------------------
-    function highlightOptions(results) {
+        for (var i = 0; i < qKeys.length; i++) {
+            var q = qKeys[i];
+            var isCorrect = results[q];
+            var itemClass = isCorrect ? "correct" : "incorrect";
+            var statusText = isCorrect ? "Correct" : "Incorrect";
 
-        // Q1: fill-in-the-blank — just highlight the input field border
-        const q1Input = document.getElementById("q1");
-        q1Input.style.borderColor = results.q1.correct ? "#4caf50" : "#e53935";
-        q1Input.style.backgroundColor = results.q1.correct ? "#f1f8e9" : "#fff3f3";
+            var html = "<div class='result-item " + itemClass + "'>";
+            html += "<p class='result-q-text'>Q" + (i + 1) + ": " + qLabels[i] + "</p>";
+            html += "<p class='result-status'>" + statusText + "</p>";
 
-        // Q2–Q6: radio questions — highlight selected and correct rows
-        ["q2","q3","q4","q5","q6"].forEach(function(qName) {
-            const correctVal = ANSWER_KEY[qName];
-            const selectedInput = document.querySelector('input[name="' + qName + '"]:checked');
-
-            // Mark the correct answer row green always
-            const correctRow = document.getElementById("row-" + qName + correctVal);
-            if (correctRow) correctRow.classList.add("graded-correct");
-
-            // If user picked wrong, mark their selection red
-            if (selectedInput && selectedInput.value !== correctVal) {
-                const wrongRow = document.getElementById("row-" + qName + selectedInput.value);
-                if (wrongRow) wrongRow.classList.add("graded-incorrect");
+            // only show the correct answer if they got it wrong
+            if (!isCorrect) {
+                html += "<p class='result-correct-answer'>Correct answer: " + correctAnswers[i] + "</p>";
             }
-        });
 
-        // Q7: checkboxes — correct=a,c,d; wrong=b
-        const correctSet = new Set(ANSWER_KEY.q7);
-        ["a","b","c","d"].forEach(function(val) {
-            const row = document.getElementById("row-q7" + val);
-            const cb = document.getElementById("q7" + val);
-            const wasChecked = cb.checked;
-            const isCorrectChoice = correctSet.has(val);
-
-            if (isCorrectChoice && wasChecked) {
-                row.classList.add("graded-correct");   // picked a right one
-            } else if (!isCorrectChoice && wasChecked) {
-                row.classList.add("graded-incorrect");  // picked a wrong one
-            } else if (isCorrectChoice && !wasChecked) {
-                row.classList.add("graded-missed");     // missed a correct one
-            }
-        });
+            html += "</div>";
+            container.innerHTML += html;
+        }
     }
 
-    // ---------------------------------------------------------------
-    // lockForm()
-    // Disables all inputs after submission to prevent changes.
-    // ---------------------------------------------------------------
-    function lockForm() {
-        document.querySelectorAll('#quiz-form input').forEach(function(input) {
-            input.disabled = true;
-        });
+    // highlights the option rows green/red after grading
+    function colorOptions(results, q2sel, q3sel, q4sel, q5sel, q6sel, q7a, q7b, q7c, q7d) {
+
+        // Q1 - color the text input border
+        var q1input = document.getElementById("q1");
+        if (results.q1) {
+            q1input.style.borderColor = "#4caf50";
+            q1input.style.backgroundColor = "#f1f8e9";
+        } else {
+            q1input.style.borderColor = "#e53935";
+            q1input.style.backgroundColor = "#fff3f3";
+        }
+
+        // Q2 - mark correct row green, wrong row red if they picked wrong
+        document.getElementById("row-q2b").classList.add("graded-correct");
+        if (q2sel != null && q2sel.value !== "b") {
+            document.getElementById("row-q2" + q2sel.value).classList.add("graded-incorrect");
+        }
+
+        // Q3
+        document.getElementById("row-q3c").classList.add("graded-correct");
+        if (q3sel != null && q3sel.value !== "c") {
+            document.getElementById("row-q3" + q3sel.value).classList.add("graded-incorrect");
+        }
+
+        // Q4
+        document.getElementById("row-q4a").classList.add("graded-correct");
+        if (q4sel != null && q4sel.value !== "a") {
+            document.getElementById("row-q4" + q4sel.value).classList.add("graded-incorrect");
+        }
+
+        // Q5
+        document.getElementById("row-q5b").classList.add("graded-correct");
+        if (q5sel != null && q5sel.value !== "b") {
+            document.getElementById("row-q5" + q5sel.value).classList.add("graded-incorrect");
+        }
+
+        // Q6
+        document.getElementById("row-q6d").classList.add("graded-correct");
+        if (q6sel != null && q6sel.value !== "d") {
+            document.getElementById("row-q6" + q6sel.value).classList.add("graded-incorrect");
+        }
+
+        // Q7 - go through each checkbox and color it
+        // a, c, d are correct. b is wrong
+        if (q7a) {
+            document.getElementById("row-q7a").classList.add("graded-correct");
+        } else {
+            document.getElementById("row-q7a").classList.add("graded-missed"); // should have picked this
+        }
+
+        if (q7b) {
+            document.getElementById("row-q7b").classList.add("graded-incorrect"); // mysql is not a web server
+        }
+
+        if (q7c) {
+            document.getElementById("row-q7c").classList.add("graded-correct");
+        } else {
+            document.getElementById("row-q7c").classList.add("graded-missed");
+        }
+
+        if (q7d) {
+            document.getElementById("row-q7d").classList.add("graded-correct");
+        } else {
+            document.getElementById("row-q7d").classList.add("graded-missed");
+        }
     }
 
-    // ---------------------------------------------------------------
-    // resetQuiz()
-    // Clears all inputs, removes result highlights, hides the
-    // results section, and resets buttons so user can retake.
-    // ---------------------------------------------------------------
+    // resets everything so the user can try again
     function resetQuiz() {
 
-        // Clear all inputs
+        // clear the form
         document.getElementById("quiz-form").reset();
 
-        // Re-enable all inputs
-        document.querySelectorAll('#quiz-form input').forEach(function(input) {
-            input.disabled = false;
-        });
+        // re-enable all the inputs
+        var allInputs = document.querySelectorAll("#quiz-form input");
+        for (var i = 0; i < allInputs.length; i++) {
+            allInputs[i].disabled = false;
+        }
 
-        // Remove all grading color classes from option rows
-        document.querySelectorAll('.option-row').forEach(function(row) {
-            row.classList.remove("graded-correct", "graded-incorrect", "graded-missed");
-        });
+        // remove color classes from all option rows
+        var rows = document.querySelectorAll(".option-row");
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].classList.remove("graded-correct", "graded-incorrect", "graded-missed");
+        }
 
-        // Reset fill-blank input styling
-        const q1Input = document.getElementById("q1");
-        q1Input.style.borderColor = "";
-        q1Input.style.backgroundColor = "";
+        // reset the fill blank input colors
+        document.getElementById("q1").style.borderColor = "";
+        document.getElementById("q1").style.backgroundColor = "";
 
-        // Hide results section and wipe its content
-        const resultsDiv = document.getElementById("quiz-results");
+        // hide the results and clear them out
+        var resultsDiv = document.getElementById("quiz-results");
         resultsDiv.style.display = "none";
 
-        // Remove the score banner (it's injected dynamically)
-        const banner = resultsDiv.querySelector(".score-banner");
-        if (banner) banner.remove();
+        var banner = resultsDiv.querySelector(".score-banner");
+        if (banner) {
+            banner.remove();
+        }
 
-        // Clear result items
         document.getElementById("result-items-container").innerHTML = "";
 
-        // Swap buttons back
+        // swap buttons back
         document.getElementById("btn-submit").style.display = "inline-block";
         document.getElementById("btn-reset").style.display = "none";
 
-        // Scroll back to top of quiz
+        // scroll back up to the top
         document.getElementById("quiz-intro").scrollIntoView({ behavior: "smooth" });
     }
 
