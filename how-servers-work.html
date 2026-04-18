@@ -22,6 +22,7 @@
             <li><a href="how-servers-work.html" class="active">How Servers Work</a></li>
             <li><a href="history.html">History &amp; Evolution</a></li>
             <li><a href="key-concepts.html">Key Concepts</a></li>
+            <li><a href="quiz.html">Quiz</a></li>
             <li><a href="references.html">References</a></li>
             <li><a href="about.html">About</a></li>
         </ul>
@@ -117,7 +118,66 @@
             </tbody>
         </table>
 
-        <h2 class="section-title">How Dynamic Content Works</h2>
+        <h2 class="section-title">HTTP Methods</h2>
+        <p>
+            Not every request works the same way. HTTP has different "methods" that tell the server
+            what the browser actually wants to do. The most common ones you will run into are GET and POST,
+            but there are a few others worth knowing about.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>What It Does</th>
+                    <th>Common Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="method-badge">GET</span></td>
+                    <td>Requests data from the server — just reading, no changes</td>
+                    <td>Loading a webpage or image</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge">POST</span></td>
+                    <td>Sends data to the server to be processed or saved</td>
+                    <td>Submitting a login form</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge">PUT</span></td>
+                    <td>Replaces existing data on the server with new data</td>
+                    <td>Updating your profile info</td>
+                </tr>
+                <tr>
+                    <td><span class="method-badge">DELETE</span></td>
+                    <td>Asks the server to delete a specific resource</td>
+                    <td>Deleting a post or account</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="callout">
+            <strong>Quick note</strong>
+            GET requests show up in the URL — that is why when you search something on Google you can
+            see your query in the address bar. POST requests do not show up there because the data
+            is sent in the body of the request instead.
+        </div>
+
+        <h2 class="section-title">HTTP Status Codes</h2>
+        <p>
+            Every response from a web server comes with a status code that tells the browser whether
+            things went well or something went wrong. You have probably seen a 404 before — that just
+            means the server could not find what was asked for. Here are the main categories:
+        </p>
+        <ul class="content-list">
+            <li><strong>2xx — Success.</strong> The request worked. 200 OK is the most common one.</li>
+            <li><strong>3xx — Redirect.</strong> The resource moved somewhere else. The server tells the browser where to go instead.</li>
+            <li><strong>4xx — Client error.</strong> Something was wrong with the request. 404 Not Found is the classic example.</li>
+            <li><strong>5xx — Server error.</strong> The server itself had a problem. 500 Internal Server Error means something broke on the server's end.</li>
+        </ul>
+
+
         <p>
             When someone requests dynamic content, the web server passes the request along to an
             <strong>application server</strong>, which handles the logic and usually pulls data from a

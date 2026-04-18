@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Web Servers</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* =============================================
+           QUIZ PAGE SPECIFIC STYLES
+           Luke Miller - IT 3203 Web Development
+           ============================================= */
+
+        /* quiz intro box */
+        #quiz-intro {
+            background-color: white;
+            border: 1px solid var(--gray-mid);
+            border-left: 4px solid var(--blue-light);
+            border-radius: 6px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+        }
+
+        #quiz-intro p {
+            margin-bottom: 8px;
+        }
+
+        #quiz-intro p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* individual question card */
+        .question-card {
+            background-color: white;
+            border: 1px solid var(--gray-mid);
+            border-radius: 6px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .question-card:focus-within {
+            border-color: var(--blue-light);
+        }
+
+        /* question number label */
+        .question-number {
+            font-size: 0.78rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue-mid);
+            margin-bottom: 6px;
+        }
+
+        /* question text */
+        .question-text {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--blue-dark);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        /* type label badge */
+        .question-type-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            background-color: var(--blue-pale);
+            color: var(--blue-dark);
+            border: 1px solid var(--gray-mid);
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin-bottom: 14px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* radio and checkbox option rows */
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border: 1px solid var(--gray-mid);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        .option-row:hover {
+            background-color: var(--blue-pale);
+            border-color: var(--blue-light);
+        }
+
+        .option-row input[type="radio"],
+        .option-row input[type="checkbox"] {
+            accent-color: var(--blue-mid);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .option-row label {
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--gray-text);
+            line-height: 1.4;
+        }
+
+        /* fill in the blank text input */
+        .fill-blank-input {
+            width: 100%;
+            max-width: 420px;
+            padding: 10px 14px;
+            border: 1px solid var(--gray-mid);
+            border-radius: 4px;
+            font-family: 'Trebuchet MS', sans-serif;
+            font-size: 0.95rem;
+            color: var(--gray-text);
+            background-color: var(--gray-light);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .fill-blank-input:focus {
+            outline: none;
+            border-color: var(--blue-mid);
+            background-color: white;
+        }
+
+        /* submit and reset buttons */
+        .quiz-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-submit {
+            background-color: var(--blue-mid);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-family: 'Trebuchet MS', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--blue-dark);
+        }
+
+        .btn-reset {
+            background-color: white;
+            color: var(--blue-mid);
+            border: 2px solid var(--blue-mid);
+            padding: 10px 28px;
+            border-radius: 4px;
+            font-family: 'Trebuchet MS', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            display: none; /* hidden until quiz is graded */
+        }
+
+        .btn-reset:hover {
+            background-color: var(--blue-pale);
+        }
+
+        /* =============================================
+           RESULTS SECTION (shown after submission)
+           ============================================= */
+
+        #quiz-results {
+            display: none; /* hidden until graded */
+            background-color: white;
+            border: 1px solid var(--gray-mid);
+            border-radius: 6px;
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+
+        /* score summary banner */
+        .score-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 20px 24px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+
+        /* green for pass */
+        .score-banner.pass {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        /* red for fail */
+        .score-banner.fail {
+            background-color: #ffebee;
+            border: 2px solid #e53935;
+        }
+
+        .score-banner .result-label {
+            font-family: Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .score-banner.pass .result-label {
+            color: #2e7d32;
+        }
+
+        .score-banner.fail .result-label {
+            color: #b71c1c;
+        }
+
+        .score-banner .score-number {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--gray-text);
+        }
+
+        .score-banner .score-pct {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .score-banner.pass .score-pct {
+            color: #2e7d32;
+        }
+
+        .score-banner.fail .score-pct {
+            color: #b71c1c;
+        }
+
+        /* per-question result rows */
+        .result-breakdown {
+            margin-top: 8px;
+        }
+
+        .result-breakdown h3 {
+            font-family: Georgia, serif;
+            color: var(--blue-dark);
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--gray-mid);
+        }
+
+        .result-item {
+            border: 1px solid var(--gray-mid);
+            border-radius: 4px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        /* correct result */
+        .result-item.correct {
+            background-color: #f1f8e9;
+            border-color: #81c784;
+        }
+
+        /* incorrect result */
+        .result-item.incorrect {
+            background-color: #fff3f3;
+            border-color: #e57373;
+        }
+
+        /* icon badge on left side */
+        .result-item::before {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .result-item.correct::before {
+            content: "✓";
+            color: #388e3c;
+        }
+
+        .result-item.incorrect::before {
+            content: "✗";
+            color: #c62828;
+        }
+
+        .result-item .result-q-text {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--blue-dark);
+            margin-bottom: 4px;
+        }
+
+        .result-item .result-status {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .result-item.correct .result-status {
+            color: #2e7d32;
+        }
+
+        .result-item.incorrect .result-status {
+            color: #c62828;
+        }
+
+        .result-item .result-your-answer {
+            font-size: 0.85rem;
+            color: var(--gray-text);
+        }
+
+        .result-item .result-correct-answer {
+            font-size: 0.85rem;
+            color: #2e7d32;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        /* highlight correct/incorrect option rows after grading */
+        .option-row.graded-correct {
+            background-color: #e8f5e9;
+            border-color: #81c784;
+        }
+
+        .option-row.graded-incorrect {
+            background-color: #ffebee;
+            border-color: #e57373;
+        }
+
+        .option-row.graded-missed {
+            background-color: #fff8e1;
+            border-color: #ffd54f;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- header -->
+    <header>
+        <h1>Web Servers</h1>
+        <p>IT 3203 Web Development Project, Luke Miller</p>
+    </header>
+
+    <!-- navigation - quiz added to menu -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="how-servers-work.html">How Servers Work</a></li>
+            <li><a href="history.html">History &amp; Evolution</a></li>
+            <li><a href="key-concepts.html">Key Concepts</a></li>
+            <li><a href="quiz.html" class="active">Quiz</a></li>
+            <li><a href="references.html">References</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+    <main>
+
+        <!-- quiz intro -->
+        <div id="quiz-intro">
+            <h2 class="section-title">Web Servers Self-Assessment Quiz</h2>
+            <p>
+                This quiz covers topics from the Web Servers site, including HTTP, the client-server model,
+                static vs. dynamic servers, and the history of major server software. Read through
+                the site before taking the quiz for best results.
+            </p>
+            <p>
+                <strong>7 questions &nbsp;|&nbsp; 70% needed to pass &nbsp;|&nbsp; All question types included</strong>
+            </p>
+        </div>
+
+        <!-- ============================================================
+             RESULTS SECTION - hidden by default, shown after submission
+             ============================================================ -->
+        <div id="quiz-results">
+            <!-- score banner injected by JS here -->
+            <div class="result-breakdown">
+                <h3>Question-by-Question Breakdown</h3>
+                <!-- result items injected by JS here -->
+                <div id="result-items-container"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             QUIZ FORM
+             ============================================================ -->
+        <form id="quiz-form" novalidate>
+
+            <!-- -------------------------------------------------------
+                 Q1: Fill in the blank
+                 Correct answer: HTTP (case-insensitive, also accept HTTPS)
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q1">
+                <p class="question-number">Question 1 of 7</p>
+                <span class="question-type-badge">Fill in the Blank</span>
+                <p class="question-text">
+                    The protocol that browsers and web servers use to communicate with each other is called
+                    <strong>_______</strong>. It defines how messages are formatted and transmitted across the web.
+                </p>
+                <input
+                    type="text"
+                    id="q1"
+                    name="q1"
+                    class="fill-blank-input"
+                    placeholder="Type your answer here..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q2: Multiple choice (one correct)
+                 Correct: b - sends the resource back to the browser
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q2">
+                <p class="question-number">Question 2 of 7</p>
+                <span class="question-type-badge">Multiple Choice</span>
+                <p class="question-text">
+                    When a user requests a web page, what does the web server do after it locates the requested resource?
+                </p>
+                <div class="option-row" id="row-q2a">
+                    <input type="radio" name="q2" id="q2a" value="a">
+                    <label for="q2a">It opens a new browser window for the user</label>
+                </div>
+                <div class="option-row" id="row-q2b">
+                    <input type="radio" name="q2" id="q2b" value="b">
+                    <label for="q2b">It sends the resource back to the browser over HTTP</label>
+                </div>
+                <div class="option-row" id="row-q2c">
+                    <input type="radio" name="q2" id="q2c" value="c">
+                    <label for="q2c">It downloads the resource to the user's hard drive</label>
+                </div>
+                <div class="option-row" id="row-q2d">
+                    <input type="radio" name="q2" id="q2d" value="d">
+                    <label for="q2d">It asks the user to log in before sending anything</label>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q3: Multiple choice (one correct)
+                 Correct: c - 404 Not Found
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q3">
+                <p class="question-number">Question 3 of 7</p>
+                <span class="question-type-badge">Multiple Choice</span>
+                <p class="question-text">
+                    Which HTTP status code does a web server return when it cannot find the resource that was requested?
+                </p>
+                <div class="option-row" id="row-q3a">
+                    <input type="radio" name="q3" id="q3a" value="a">
+                    <label for="q3a">200 OK</label>
+                </div>
+                <div class="option-row" id="row-q3b">
+                    <input type="radio" name="q3" id="q3b" value="b">
+                    <label for="q3b">301 Moved Permanently</label>
+                </div>
+                <div class="option-row" id="row-q3c">
+                    <input type="radio" name="q3" id="q3c" value="c">
+                    <label for="q3c">404 Not Found</label>
+                </div>
+                <div class="option-row" id="row-q3d">
+                    <input type="radio" name="q3" id="q3d" value="d">
+                    <label for="q3d">500 Internal Server Error</label>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q4: Multiple choice (one correct)
+                 Correct: a - Tim Berners-Lee at CERN
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q4">
+                <p class="question-number">Question 4 of 7</p>
+                <span class="question-type-badge">Multiple Choice</span>
+                <p class="question-text">
+                    Who created the first web server, and where were they working at the time?
+                </p>
+                <div class="option-row" id="row-q4a">
+                    <input type="radio" name="q4" id="q4a" value="a">
+                    <label for="q4a">Tim Berners-Lee at CERN in Switzerland</label>
+                </div>
+                <div class="option-row" id="row-q4b">
+                    <input type="radio" name="q4" id="q4b" value="b">
+                    <label for="q4b">Bill Gates at Microsoft in Seattle</label>
+                </div>
+                <div class="option-row" id="row-q4c">
+                    <input type="radio" name="q4" id="q4c" value="c">
+                    <label for="q4c">Linus Torvalds at the University of Helsinki</label>
+                </div>
+                <div class="option-row" id="row-q4d">
+                    <input type="radio" name="q4" id="q4d" value="d">
+                    <label for="q4d">Jeff Bezos at Amazon Web Services</label>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q5: Multiple choice (one correct)
+                 Correct: b - Nginx was designed to handle high traffic
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q5">
+                <p class="question-number">Question 5 of 7</p>
+                <span class="question-type-badge">Multiple Choice</span>
+                <p class="question-text">
+                    What was the primary reason Nginx was developed as an alternative to earlier web servers like Apache?
+                </p>
+                <div class="option-row" id="row-q5a">
+                    <input type="radio" name="q5" id="q5a" value="a">
+                    <label for="q5a">It was designed specifically for Microsoft Windows</label>
+                </div>
+                <div class="option-row" id="row-q5b">
+                    <input type="radio" name="q5" id="q5b" value="b">
+                    <label for="q5b">It was built to handle thousands of concurrent connections more efficiently</label>
+                </div>
+                <div class="option-row" id="row-q5c">
+                    <input type="radio" name="q5" id="q5c" value="c">
+                    <label for="q5c">It supports a paid licensing model for enterprise use</label>
+                </div>
+                <div class="option-row" id="row-q5d">
+                    <input type="radio" name="q5" id="q5d" value="d">
+                    <label for="q5d">It only serves static content and nothing else</label>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q6: Multiple choice (one correct)
+                 Correct: d - A static server sends files as-is
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q6">
+                <p class="question-number">Question 6 of 7</p>
+                <span class="question-type-badge">Multiple Choice</span>
+                <p class="question-text">
+                    Which of the following best describes how a static web server handles a request?
+                </p>
+                <div class="option-row" id="row-q6a">
+                    <input type="radio" name="q6" id="q6a" value="a">
+                    <label for="q6a">It queries a database and builds a custom response for each user</label>
+                </div>
+                <div class="option-row" id="row-q6b">
+                    <input type="radio" name="q6" id="q6b" value="b">
+                    <label for="q6b">It requires user authentication before serving any file</label>
+                </div>
+                <div class="option-row" id="row-q6c">
+                    <input type="radio" name="q6" id="q6c" value="c">
+                    <label for="q6c">It passes the request to an application server for processing</label>
+                </div>
+                <div class="option-row" id="row-q6d">
+                    <input type="radio" name="q6" id="q6d" value="d">
+                    <label for="q6d">It sends files exactly as they are stored, with no extra processing</label>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------
+                 Q7: Multi-select (more than one correct)
+                 Correct: a, c, d
+                 (Apache, Nginx, IIS are web server software — MySQL is a database)
+                 ------------------------------------------------------- -->
+            <div class="question-card" id="card-q7">
+                <p class="question-number">Question 7 of 7</p>
+                <span class="question-type-badge">Select All That Apply</span>
+                <p class="question-text">
+                    Which of the following are examples of web server software? <em>(Select all that apply — more than one answer is correct.)</em>
+                </p>
+                <div class="option-row" id="row-q7a">
+                    <input type="checkbox" id="q7a" name="q7" value="a">
+                    <label for="q7a">Apache HTTP Server</label>
+                </div>
+                <div class="option-row" id="row-q7b">
+                    <input type="checkbox" id="q7b" name="q7" value="b">
+                    <label for="q7b">MySQL</label>
+                </div>
+                <div class="option-row" id="row-q7c">
+                    <input type="checkbox" id="q7c" name="q7" value="c">
+                    <label for="q7c">Nginx</label>
+                </div>
+                <div class="option-row" id="row-q7d">
+                    <input type="checkbox" id="q7d" name="q7" value="d">
+                    <label for="q7d">Internet Information Services (IIS)</label>
+                </div>
+            </div>
+
+            <!-- submit and reset buttons -->
+            <div class="quiz-actions">
+                <button type="button" class="btn-submit" id="btn-submit" onclick="gradeQuiz()">Submit Quiz</button>
+                <button type="button" class="btn-reset" id="btn-reset" onclick="resetQuiz()">Retake Quiz</button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <footer>
+        <p>This is a class project for <a href="https://ksuweb.github.io/IT3203/" target="_blank">IT 3203 Web Development</a> at Kennesaw State University.</p>
+        <p style="margin-top: 6px;">&copy; 2026 Luke Miller</p>
+    </footer>
+
+</div>
+
+<!-- ================================================================
+     QUIZ JAVASCRIPT
+     Handles grading, scoring, results display, and reset logic.
+     Luke Miller - IT 3203 Web Development
+     ================================================================ -->
+<script>
+
+    // ---------------------------------------------------------------
+    // ANSWER KEY
+    // Q1: fill-in-the-blank — accept "http" or "https" (case-insensitive)
+    // Q2-Q6: single correct radio choice (a, b, c, or d)
+    // Q7: multi-select — user must pick exactly a, c, and d
+    // ---------------------------------------------------------------
+    const ANSWER_KEY = {
+        q1: ["http", "https"],          // accepted fill-blank answers (lowercase)
+        q2: "b",                         // sends resource back over HTTP
+        q3: "c",                         // 404 Not Found
+        q4: "a",                         // Tim Berners-Lee at CERN
+        q5: "b",                         // built for high concurrent connections
+        q6: "d",                         // sends files as-is, no processing
+        q7: ["a", "c", "d"]             // Apache, Nginx, IIS (not MySQL)
+    };
+
+    // Short labels for each question used in the results breakdown
+    const QUESTION_LABELS = {
+        q1: 'Fill in the Blank — "The protocol browsers and servers use to communicate is ___."',
+        q2: "Multiple Choice — What does the server do after locating a resource?",
+        q3: "Multiple Choice — Which status code means the resource was not found?",
+        q4: "Multiple Choice — Who created the first web server and where?",
+        q5: "Multiple Choice — Why was Nginx developed?",
+        q6: "Multiple Choice — How does a static web server handle a request?",
+        q7: "Select All That Apply — Which of these are web server software?"
+    };
+
+    // Human-readable correct answers shown in the breakdown
+    const CORRECT_ANSWER_TEXT = {
+        q1: "HTTP (or HTTPS)",
+        q2: "It sends the resource back to the browser over HTTP",
+        q3: "404 Not Found",
+        q4: "Tim Berners-Lee at CERN in Switzerland",
+        q5: "It was built to handle thousands of concurrent connections more efficiently",
+        q6: "It sends files exactly as they are stored, with no extra processing",
+        q7: "Apache HTTP Server, Nginx, and IIS"
+    };
+
+    // ---------------------------------------------------------------
+    // gradeQuiz()
+    // Called when the user clicks Submit. Collects answers, scores
+    // each question, updates the UI with results, and scrolls up.
+    // ---------------------------------------------------------------
+    function gradeQuiz() {
+        let totalScore = 0;
+        const totalQuestions = 7;
+        const passingPercent = 70;
+        const results = {};
+
+        // --- Q1: Fill in the blank ---
+        const q1Answer = document.getElementById("q1").value.trim().toLowerCase();
+        results.q1 = {
+            correct: ANSWER_KEY.q1.includes(q1Answer),
+            userAnswer: q1Answer === "" ? "(no answer)" : document.getElementById("q1").value.trim()
+        };
+
+        // --- Q2 through Q6: Single-choice radio questions ---
+        ["q2", "q3", "q4", "q5", "q6"].forEach(function(qName) {
+            const selected = document.querySelector('input[name="' + qName + '"]:checked');
+            const userVal = selected ? selected.value : null;
+            results[qName] = {
+                correct: userVal === ANSWER_KEY[qName],
+                userAnswer: selected ? selected.nextElementSibling.textContent : "(no answer)"
+            };
+        });
+
+        // --- Q7: Multi-select checkboxes ---
+        const q7Checked = Array.from(document.querySelectorAll('input[name="q7"]:checked'))
+                               .map(function(cb) { return cb.value; })
+                               .sort();
+        const q7Correct = [...ANSWER_KEY.q7].sort();
+        // must match exactly — same items, same count
+        const q7IsCorrect = JSON.stringify(q7Checked) === JSON.stringify(q7Correct);
+        results.q7 = {
+            correct: q7IsCorrect,
+            userAnswer: q7Checked.length === 0
+                ? "(no answer)"
+                : q7Checked.map(function(v) {
+                    return document.querySelector('input[value="' + v + '"][name="q7"]')
+                                   .nextElementSibling.textContent;
+                  }).join(", ")
+        };
+
+        // --- Calculate total score ---
+        ["q1","q2","q3","q4","q5","q6","q7"].forEach(function(q) {
+            if (results[q].correct) totalScore++;
+        });
+
+        const percentScore = Math.round((totalScore / totalQuestions) * 100);
+        const passed = percentScore >= passingPercent;
+
+        // --- Show results section ---
+        showResults(results, totalScore, totalQuestions, percentScore, passed);
+
+        // --- Highlight option rows on each question card ---
+        highlightOptions(results);
+
+        // --- Lock the form so answers can't change after grading ---
+        lockForm();
+
+        // --- Show reset button, hide submit button ---
+        document.getElementById("btn-submit").style.display = "none";
+        document.getElementById("btn-reset").style.display = "inline-block";
+
+        // --- Scroll to top of results ---
+        document.getElementById("quiz-results").scrollIntoView({ behavior: "smooth" });
+    }
+
+    // ---------------------------------------------------------------
+    // showResults()
+    // Builds and injects the score banner and per-question breakdown.
+    // ---------------------------------------------------------------
+    function showResults(results, score, total, percent, passed) {
+        const resultsDiv = document.getElementById("quiz-results");
+        resultsDiv.style.display = "block";
+
+        // Build score banner HTML
+        const bannerClass = passed ? "pass" : "fail";
+        const bannerLabel = passed ? "✓ PASS" : "✗ FAIL";
+        const bannerHTML = `
+            <div class="score-banner ${bannerClass}">
+                <span class="result-label">${bannerLabel}</span>
+                <span class="score-number">${score} / ${total} correct</span>
+                <span class="score-pct">${percent}%</span>
+            </div>
+        `;
+
+        // Insert banner before the breakdown section
+        const breakdown = resultsDiv.querySelector(".result-breakdown");
+        breakdown.insertAdjacentHTML("beforebegin", bannerHTML);
+
+        // Build per-question result items
+        const container = document.getElementById("result-items-container");
+        container.innerHTML = "";
+
+        ["q1","q2","q3","q4","q5","q6","q7"].forEach(function(q, idx) {
+            const r = results[q];
+            const itemClass = r.correct ? "correct" : "incorrect";
+            const statusText = r.correct ? "Correct" : "Incorrect";
+
+            // Only show correct answer row if the user got it wrong
+            const correctAnswerHTML = r.correct
+                ? ""
+                : `<p class="result-correct-answer">Correct answer: ${CORRECT_ANSWER_TEXT[q]}</p>`;
+
+            container.innerHTML += `
+                <div class="result-item ${itemClass}">
+                    <p class="result-q-text">Q${idx + 1}: ${QUESTION_LABELS[q]}</p>
+                    <p class="result-status">${statusText}</p>
+                    <p class="result-your-answer">Your answer: ${r.userAnswer}</p>
+                    ${correctAnswerHTML}
+                </div>
+            `;
+        });
+    }
+
+    // ---------------------------------------------------------------
+    // highlightOptions()
+    // Adds color classes to each option row after grading so users
+    // can see which choices were right or wrong at a glance.
+    // ---------------------------------------------------------------
+    function highlightOptions(results) {
+
+        // Q1: fill-in-the-blank — just highlight the input field border
+        const q1Input = document.getElementById("q1");
+        q1Input.style.borderColor = results.q1.correct ? "#4caf50" : "#e53935";
+        q1Input.style.backgroundColor = results.q1.correct ? "#f1f8e9" : "#fff3f3";
+
+        // Q2–Q6: radio questions — highlight selected and correct rows
+        ["q2","q3","q4","q5","q6"].forEach(function(qName) {
+            const correctVal = ANSWER_KEY[qName];
+            const selectedInput = document.querySelector('input[name="' + qName + '"]:checked');
+
+            // Mark the correct answer row green always
+            const correctRow = document.getElementById("row-" + qName + correctVal);
+            if (correctRow) correctRow.classList.add("graded-correct");
+
+            // If user picked wrong, mark their selection red
+            if (selectedInput && selectedInput.value !== correctVal) {
+                const wrongRow = document.getElementById("row-" + qName + selectedInput.value);
+                if (wrongRow) wrongRow.classList.add("graded-incorrect");
+            }
+        });
+
+        // Q7: checkboxes — correct=a,c,d; wrong=b
+        const correctSet = new Set(ANSWER_KEY.q7);
+        ["a","b","c","d"].forEach(function(val) {
+            const row = document.getElementById("row-q7" + val);
+            const cb = document.getElementById("q7" + val);
+            const wasChecked = cb.checked;
+            const isCorrectChoice = correctSet.has(val);
+
+            if (isCorrectChoice && wasChecked) {
+                row.classList.add("graded-correct");   // picked a right one
+            } else if (!isCorrectChoice && wasChecked) {
+                row.classList.add("graded-incorrect");  // picked a wrong one
+            } else if (isCorrectChoice && !wasChecked) {
+                row.classList.add("graded-missed");     // missed a correct one
+            }
+        });
+    }
+
+    // ---------------------------------------------------------------
+    // lockForm()
+    // Disables all inputs after submission to prevent changes.
+    // ---------------------------------------------------------------
+    function lockForm() {
+        document.querySelectorAll('#quiz-form input').forEach(function(input) {
+            input.disabled = true;
+        });
+    }
+
+    // ---------------------------------------------------------------
+    // resetQuiz()
+    // Clears all inputs, removes result highlights, hides the
+    // results section, and resets buttons so user can retake.
+    // ---------------------------------------------------------------
+    function resetQuiz() {
+
+        // Clear all inputs
+        document.getElementById("quiz-form").reset();
+
+        // Re-enable all inputs
+        document.querySelectorAll('#quiz-form input').forEach(function(input) {
+            input.disabled = false;
+        });
+
+        // Remove all grading color classes from option rows
+        document.querySelectorAll('.option-row').forEach(function(row) {
+            row.classList.remove("graded-correct", "graded-incorrect", "graded-missed");
+        });
+
+        // Reset fill-blank input styling
+        const q1Input = document.getElementById("q1");
+        q1Input.style.borderColor = "";
+        q1Input.style.backgroundColor = "";
+
+        // Hide results section and wipe its content
+        const resultsDiv = document.getElementById("quiz-results");
+        resultsDiv.style.display = "none";
+
+        // Remove the score banner (it's injected dynamically)
+        const banner = resultsDiv.querySelector(".score-banner");
+        if (banner) banner.remove();
+
+        // Clear result items
+        document.getElementById("result-items-container").innerHTML = "";
+
+        // Swap buttons back
+        document.getElementById("btn-submit").style.display = "inline-block";
+        document.getElementById("btn-reset").style.display = "none";
+
+        // Scroll back to top of quiz
+        document.getElementById("quiz-intro").scrollIntoView({ behavior: "smooth" });
+    }
+
+</script>
+
+</body>
+</html>

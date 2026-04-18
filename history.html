@@ -20,6 +20,7 @@
             <li><a href="how-servers-work.html">How Servers Work</a></li>
             <li><a href="history.html" class="active">History &amp; Evolution</a></li>
             <li><a href="key-concepts.html">Key Concepts</a></li>
+            <li><a href="quiz.html">Quiz</a></li>
             <li><a href="references.html">References</a></li>
             <li><a href="about.html">About</a></li>
         </ul>
@@ -128,6 +129,62 @@
             IIS is especially common in corporate and enterprise environments where everything else
             is already running on Microsoft products.
         </p>
+
+        <h2 class="section-title">Server Software Comparison</h2>
+        <p>
+            Apache, Nginx, and IIS are the three biggest names in web server software. They all do
+            the same basic job but go about it pretty differently. Here is a quick side-by-side look:
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Apache</th>
+                    <th>Nginx</th>
+                    <th>IIS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Released</td>
+                    <td>1995</td>
+                    <td>2004</td>
+                    <td>1995</td>
+                </tr>
+                <tr>
+                    <td>Open Source</td>
+                    <td>Yes</td>
+                    <td>Yes</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Flexibility, shared hosting</td>
+                    <td>High traffic, performance</td>
+                    <td>Windows environments</td>
+                </tr>
+                <tr>
+                    <td>OS Support</td>
+                    <td>Linux, macOS, Windows</td>
+                    <td>Linux, macOS, Windows</td>
+                    <td>Windows only</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Market Share</td>
+                    <td>~30%</td>
+                    <td>~33%</td>
+                    <td>~10%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="callout note">
+            <strong>Note</strong>
+            A lot of modern websites actually use both Nginx and Apache together — Nginx handles incoming
+            traffic out front and passes requests back to Apache behind the scenes. It gets the speed
+            of Nginx and the flexibility of Apache at the same time.
+        </div>
 
         <h2 class="section-title">Modern Trends and the Future</h2>
         <p>
